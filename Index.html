@@ -1,0 +1,412 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Matematica Discreta</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Playfair+Display:wght@600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f5f0e6;
+      --paper-line: rgba(26, 26, 46, 0.08);
+      --ink: #1a1a2e;
+      --red: #8b1a1a;
+      --blue: #1a4a8b;
+      --green: #285c28;
+      --gold: #8a6a17;
+      --border: rgba(26, 26, 46, 0.22);
+      --shadow: 0 6px 18px rgba(26, 26, 46, 0.08);
+      --surface: rgba(255, 252, 246, 0.92);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background-color: var(--paper);
+      background-image:
+        linear-gradient(to bottom, transparent 0, transparent 31px, var(--paper-line) 32px),
+        linear-gradient(to right, rgba(26, 26, 46, 0.04) 0, rgba(26, 26, 46, 0.04) 1px, transparent 1px);
+      background-size: 100% 32px, 32px 100%;
+      font-family: "Source Serif 4", serif;
+      line-height: 1.5;
+    }
+
+    .page {
+      width: min(1080px, calc(100% - 24px));
+      margin: 0 auto 28px;
+      padding-top: 0;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      font-family: "Playfair Display", serif;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .app-block,
+    .result-shell {
+      background: rgba(232, 227, 218, 0.78);
+      border: 1px solid rgba(173, 159, 132, 0.55);
+      box-shadow: 0 10px 26px rgba(93, 81, 57, 0.12);
+    }
+
+    .app-block {
+      margin-top: 18px;
+    }
+
+    .block-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      border-bottom: 1px solid rgba(173, 159, 132, 0.55);
+      font: 600 0.9rem/1.2 "Playfair Display", serif;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--blue);
+    }
+
+    .block-head .head-left {
+      color: var(--ink);
+    }
+
+    .block-body {
+      padding: 20px;
+    }
+
+    .screen-label,
+    .section-label,
+    .meta-label {
+      display: block;
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(26, 26, 46, 0.68);
+      margin-bottom: 8px;
+    }
+
+    .editor {
+      width: 100%;
+      min-height: 126px;
+      border: 1px solid rgba(190, 176, 150, 0.9);
+      padding: 18px 20px;
+      resize: vertical;
+      background: rgba(255, 255, 255, 0.58);
+      color: var(--ink);
+      font: italic 500 1rem/1.7 "JetBrains Mono", monospace;
+      outline: none;
+    }
+
+    .editor:focus {
+      border-color: var(--blue);
+      box-shadow: inset 0 0 0 1px var(--blue);
+    }
+
+    .action-button,
+    .key-button {
+      border: 1px solid rgba(192, 177, 149, 0.95);
+      background: rgba(255, 252, 246, 0.72);
+      color: var(--ink);
+      font: inherit;
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    }
+
+    .action-button {
+      padding: 12px 18px;
+      font-weight: 600;
+    }
+
+    .action-button:hover,
+    .key-button:hover {
+      background: #f1ebdf;
+      border-color: rgba(26, 26, 46, 0.4);
+    }
+
+    .action-button:active,
+    .key-button:active {
+      transform: translateY(1px);
+    }
+
+    .keyboard {
+      display: grid;
+      gap: 14px;
+    }
+
+    .key-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .key-grid.variables {
+      grid-template-columns: repeat(13, minmax(0, 1fr));
+    }
+
+    .key-grid.operators {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .key-grid.grouping,
+    .action-grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .key-button {
+      min-height: 48px;
+      padding: 8px 10px;
+      font: 600 0.98rem/1 "JetBrains Mono", monospace;
+    }
+
+    .key-button.operator {
+      color: var(--blue);
+      font-size: 1.18rem;
+    }
+
+    .action-grid {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(173, 159, 132, 0.55);
+    }
+
+    .action-button.primary {
+      background: #25579a;
+      color: #f7f1e5;
+      border-color: #1c4478;
+    }
+
+    .action-button.accent {
+      color: #f8f4ec;
+      border-color: #1f6a37;
+      background: #23733d;
+    }
+
+    .action-button.warn {
+      color: var(--red);
+      border-color: rgba(139, 26, 26, 0.4);
+    }
+
+    .action-button.action-clear {
+      color: #f8f4ec;
+      background: #9f1f1f;
+      border-color: #7f1818;
+    }
+
+    .action-button.action-check {
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    .result-shell {
+      margin-top: 18px;
+      padding: 20px 22px;
+    }
+
+    .result-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .verdict-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border: 1px solid currentColor;
+      font-size: 0.86rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.68);
+    }
+
+    .verdict-tautologia {
+      color: var(--green);
+    }
+
+    .verdict-contradicao {
+      color: var(--red);
+    }
+
+    .verdict-contingencia {
+      color: var(--gold);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.84);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 640px;
+    }
+
+    thead th {
+      background: var(--ink);
+      color: #f9f5ec;
+      padding: 10px 12px;
+      border: 1px solid rgba(249, 245, 236, 0.18);
+      font: 600 0.92rem/1.4 "JetBrains Mono", monospace;
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 9px 12px;
+      border: 1px solid rgba(26, 26, 46, 0.1);
+      text-align: center;
+      font: 500 0.94rem/1.4 "JetBrains Mono", monospace;
+      white-space: nowrap;
+    }
+
+    tbody tr:nth-child(even) {
+      background: rgba(26, 26, 46, 0.05);
+    }
+
+    .value-v {
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .value-f {
+      color: var(--red);
+      font-weight: 700;
+    }
+
+    .result-foot {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 12px;
+      font-size: 0.94rem;
+    }
+
+    .empty-state {
+      min-height: 18px;
+    }
+
+    @media (max-width: 980px) {
+      .page {
+        width: min(100% - 20px, 1200px);
+      }
+
+      .block-body,
+      .result-shell {
+        padding: 18px;
+      }
+
+      .key-grid.variables {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+      }
+
+      .key-grid.operators,
+      .key-grid.grouping,
+      .action-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .result-top,
+      .result-foot,
+      .block-head {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="app-block">
+      <div class="block-head">
+        <span class="head-left">Entrada — Expressao Logica</span>
+        <span>Calculadora Logica</span>
+      </div>
+      <div class="block-body">
+        <textarea id="campoExpressao" class="editor" spellcheck="false"></textarea>
+      </div>
+    </section>
+
+    <section class="app-block">
+      <div class="block-head">
+        <span class="head-left">Teclado</span>
+      </div>
+      <div class="block-body">
+        <div class="keyboard" id="painelTeclado">
+          <section class="key-group">
+            <span class="meta-label">Variaveis</span>
+            <div class="key-grid variables" id="gradeVariaveis"></div>
+          </section>
+
+          <section class="key-group">
+            <span class="meta-label">Operadores</span>
+            <div class="key-grid operators">
+              <button type="button" class="key-button operator" data-insert="¬" title="Negacao">¬</button>
+              <button type="button" class="key-button operator" data-insert="∧" title="Conjuncao">∧</button>
+              <button type="button" class="key-button operator" data-insert="∨" title="Disjuncao">∨</button>
+              <button type="button" class="key-button operator" data-insert="⊕" title="Disjuncao exclusiva">⊕</button>
+              <button type="button" class="key-button operator" data-insert="→" title="Condicional">→</button>
+              <button type="button" class="key-button operator" data-insert="↔" title="Bicondicional">↔</button>
+            </div>
+          </section>
+
+          <section class="key-group">
+            <span class="meta-label">Agrupamento e Constantes</span>
+            <div class="key-grid grouping">
+              <button type="button" class="key-button" data-insert="(">(</button>
+              <button type="button" class="key-button" data-insert=")">)</button>
+              <button type="button" class="key-button" data-insert="V" title="Constante verdadeira">V</button>
+              <button type="button" class="key-button" data-insert="F" title="Constante falsa">F</button>
+              <button type="button" class="key-button" data-insert=" " title="Espaco">esp</button>
+            </div>
+          </section>
+
+          <div class="action-grid">
+            <button type="button" class="action-button warn" id="botaoApagar">← Del</button>
+            <button type="button" class="action-button action-clear" id="botaoLimpar">Limpar</button>
+            <button type="button" class="action-button accent" id="botaoTautologia">V (Taut.)</button>
+            <button type="button" class="action-button action-check warn" id="botaoContradicao">F (Cont.)</button>
+            <button type="button" class="action-button primary" id="botaoCalcular">= Calcular</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="result-shell">
+      <div class="result-top">
+        <div>
+          <span class="section-label">Tabela-Verdade</span>
+          <h2 id="tituloResultado">Nenhum calculo realizado</h2>
+        </div>
+        <div id="seloVeredito" class="verdict-badge" hidden>Aguardando</div>
+      </div>
+      <div class="table-wrap" id="areaTabela">
+        <div class="empty-state"></div>
+      </div>
+      <div class="result-foot">
+        <span id="textoLinhas">Linhas: 0</span>
+        <span id="textoVariaveis">Variaveis: 0</span>
+      </div>
+    </section>
+  </main>
+
+  <script src="parser.js"></script>
+  <script src="table.js"></script>
+  <script src="code.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
+
