@@ -1,4 +1,4 @@
-window.LogicaMotor = (() => {
+﻿window.LogicaMotor = (() => {
   function avaliarPosfixa(expressaoPosfixa, atribuicao) {
     const pilha = [];
 

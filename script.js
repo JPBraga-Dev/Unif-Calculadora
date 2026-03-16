@@ -26,11 +26,7 @@ function montarTecladoDeVariaveis() {
   }
 }
 
-function exibirErro(mensagem) {
-  ui.titulo.textContent = mensagem;
-  ui.selo.hidden = true;
-  ui.tabela.innerHTML = '<div class="empty-state"></div>';
-}
+function exibirErro() {}
 
 function limparErro() {
   if (ui.selo.hidden) {
@@ -86,12 +82,10 @@ function verificarClassificacao(classificacaoEsperada) {
   try {
     const dados = calcular();
     if (dados.veredito !== classificacaoEsperada) {
-      exibirErro(
-        `A expressao foi classificada como ${dados.veredito.toLowerCase()}, nao como ${classificacaoEsperada.toLowerCase()}.`
-      );
+      exibirErro();
     }
   } catch (erro) {
-    exibirErro(erro.message);
+    exibirErro();
   }
 }
 
@@ -118,7 +112,7 @@ ui.botoes.calcular.addEventListener("click", () => {
   try {
     calcular();
   } catch (erro) {
-    exibirErro(erro.message);
+    exibirErro();
   }
 });
 

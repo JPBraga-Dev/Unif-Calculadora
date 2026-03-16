@@ -1,4 +1,5 @@
-window.LogicaParser = (() => {
+﻿window.LogicaParser = (() => {
+  const SIMBOLOS_OPERADORES = ["↔", "→", "¬", "∧", "∨", "⊕"];
   const OPERADORES = {
     "¬": { precedencia: 6, associatividade: "direita" },
     "∧": { precedencia: 5, associatividade: "esquerda" },
@@ -31,7 +32,7 @@ window.LogicaParser = (() => {
     for (let indice = 0; indice < compacta.length; indice += 1) {
       const simbolo = compacta[indice];
 
-      if (["↔", "→", "¬", "∧", "∨", "⊕", "(", ")"].includes(simbolo)) {
+      if ([...SIMBOLOS_OPERADORES, "(", ")"].includes(simbolo)) {
         tokens.push(simbolo);
         continue;
       }
